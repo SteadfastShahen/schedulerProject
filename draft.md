@@ -44,7 +44,7 @@ function scheduleTask ( task, when, recurrent = false ) {
                 
                 if( recurrent && ( arrOfJobs[0].timer >= when ) ) {
                     
-                    console.log('i got here')
+                    
                     
                     // for (let i = 0; i < arrOfJobs.length; i++) {
                     //     arrOfJobs[i].timer -= when
@@ -54,7 +54,7 @@ function scheduleTask ( task, when, recurrent = false ) {
                     scheduleTask( task, when, recurrent )
                 }
                 else if( !recurrent && arrOfJobs[0].timer < when  ){
-                    console.log('i am here')
+                    
                     scheduleTask( arrOfJobs[0].task, arrOfJobs[0].timer, arrOfJobs[0].recurrent )
                 }
                 
