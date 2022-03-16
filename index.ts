@@ -52,12 +52,12 @@ class Queue {
     removeFromQueue ( task: Task ) {
         this.queue = this.queue.filter( someTask => someTask.name !== task.name )
 
-        let currTimer = this.queue[0].timer
+        let currTimer = task.originalTimer
 
         setTimeout( () => {
-            console.log(this.queue)
+            // console.log(this.queue)
             this.queue = this.queue.filter( someTask => someTask.name !== task.name )
-            console.log(this.queue)
+            // console.log(this.queue)
         }, currTimer )
         // wait for [0].timer -> then do this again in case its timeout was already set
             
@@ -97,24 +97,24 @@ class Queue {
 
 let job1 = () => { console.log('task once only after 18 seconds') }
 
-let task = new Task( '7 sec', () => { console.log('task every 7 seconds') }, 7000, true )
+let task = new Task( '7 sec', () => { console.log('task once only after 7 seconds') }, 7000 )
 let task1 = new Task( '18 sec', job1, 18000 )
 let task2 = new Task( '13 sec', () => { console.log('task once only after 13 seconds') }, 13000 )
-let task3 = new Task( '3 sec', () => { console.log('task once only after 3 seconds') }, 3000, true )
-let task4 = new Task( '5 sec', () => { console.log('task once only after 5 seconds') }, 5000, true )
+let task3 = new Task( '3 sec', () => { console.log('task every 3 seconds') }, 3000, true )
+let task4 = new Task( '5 sec', () => { console.log('task every 5 seconds') }, 5000, true )
 
 let queuer = new Queue()
-// queuer.addToQueue( task )
+queuer.addToQueue( task )
 
 // console.log('first step')
 // console.log(queuer.queue)
 
-// queuer.addToQueue( task1 )
+queuer.addToQueue( task1 )
 
 // console.log('2nd step')
 // console.log(queuer.queue)
 
-// queuer.addToQueue( task2 )
+queuer.addToQueue( task2 )
 
 // console.log('3rd step')
 // console.log(queuer.queue)
@@ -126,6 +126,6 @@ queuer.addToQueue( task3 )
 
 queuer.addToQueue( task4 )
 
-setTimeout( () => { queuer.removeFromQueue( task3 ) }, 15500 )
+setTimeout( () => { queuer.removeFromQueue( task3 ) }, 14000 )
 
 queuer.executeQueue()
