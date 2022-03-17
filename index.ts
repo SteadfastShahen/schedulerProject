@@ -49,22 +49,34 @@ class Queue {
         }
     }
 
-    removeFromQueue ( task: Task ) {
-        this.queue = this.queue.filter( someTask => someTask.name !== task.name )
+    removeFromQueue ( deleteTask: Task, iteratedTwice: boolean = false ) {
+        // console.log(this.queue)
+        this.queue = this.queue.filter( someTask => someTask.name !== deleteTask.name )
+        // console.log(this.queue)
+        // console.log('--------------------------')
 
-        let currTimer = task.originalTimer
+        // Probably an optimization
+        // use the fact that if that task is queue[0] then its timeout is already set so only add to queue the deletion instead of filtering
+        // if(deleteTask.name == this.queue[0].name) -> addToQueue( filtering )
+        // else -> filter
 
-        setTimeout( () => {
-            // console.log(this.queue)
-            this.queue = this.queue.filter( someTask => someTask.name !== task.name )
-            // console.log(this.queue)
-        }, currTimer )
-        // wait for [0].timer -> then do this again in case its timeout was already set
+        if ( !iteratedTwice ) {
+            let currTimer = deleteTask.originalTimer
+    
+            let secondIteration = new Task( 'secondIterationOfRemove', () => { 
+                this.removeFromQueue( deleteTask, true ) 
+                console.log('cancelled: ' + deleteTask.name) 
+            }, currTimer, false )
+
+            this.addToQueue( secondIteration )
+        }
+
+        // wait for task.timer -> then do this again in case its timeout was already set
             
     }
 
     executeQueue () {
-        if ( this.queue[0] ){
+        if ( this.queue[0] ) {
             let currTimer = this.queue[0].timer
             this.secondsPast += currTimer
             // console.log('---------------')
@@ -75,16 +87,17 @@ class Queue {
             let taskCopy = { ...this.queue[0] }
             taskCopy.timer = taskCopy.originalTimer
             let timeoutID = setTimeout( () => { 
-
-                // if taskCopy === this.queue[0]
+                if ( taskCopy.name !== this.queue[0].name) {
+                    taskCopy = this.queue[0]
+                    toBeDone = this.queue[0].task 
+                }
                 toBeDone() 
                 console.log(`seconds past: ${this.secondsPast}`)
 
                 this.queue.shift()
                 this.queue.forEach( task => task.timer -= currTimer )
 
-                if( taskCopy.recurrent == true ){
-                    // console.log(this.queue)
+                if ( taskCopy.recurrent == true ) {
                     this.addToQueue( taskCopy )
                 }
                 this.executeQueue()
@@ -97,7 +110,7 @@ class Queue {
 
 let job1 = () => { console.log('task once only after 18 seconds') }
 
-let task = new Task( '7 sec', () => { console.log('task once only after 7 seconds') }, 7000 )
+let task = new Task( '7 sec', () => { console.log('task once only after 7 seconds') }, 7000, true )
 let task1 = new Task( '18 sec', job1, 18000 )
 let task2 = new Task( '13 sec', () => { console.log('task once only after 13 seconds') }, 13000 )
 let task3 = new Task( '3 sec', () => { console.log('task every 3 seconds') }, 3000, true )
@@ -126,6 +139,7 @@ queuer.addToQueue( task3 )
 
 queuer.addToQueue( task4 )
 
-setTimeout( () => { queuer.removeFromQueue( task3 ) }, 14000 )
+setTimeout( () => { queuer.removeFromQueue( task3 ) }, 15500 )
+setTimeout( () => { queuer.removeFromQueue( task ) }, 35500 )
 
 queuer.executeQueue()
