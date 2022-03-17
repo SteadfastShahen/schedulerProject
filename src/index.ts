@@ -3,6 +3,7 @@ class Task {
     task: any 
     originalTimer: number
     timer: number
+    // nextTimer: number
     recurrent: boolean
 
     constructor ( name: string, task: any, timer: number, recurrent: boolean = false ) {
@@ -18,7 +19,7 @@ class Queue {
     queue: Task[]
     secondsPast: number
    
-    constructor() {
+    constructor () {
       this.queue = []
       this.secondsPast = 0
     }
@@ -59,6 +60,10 @@ class Queue {
                 this.removeFromQueue( deleteTask, true ) 
                 console.log('cancelled: ' + deleteTask.name) 
             }, currTimer, false )
+
+            // --- cron update comment ---
+            // secondIteration.timer = nextTimer
+            // not necessarily update nextTimer
 
             this.addToQueue( secondIteration )
         }
@@ -108,6 +113,13 @@ class Queue {
                     this.queue.forEach( task => task.timer -= currTimer )
 
                     if ( taskCopy.recurrent == true ) {
+
+                        // --- cron update comment ---
+                        // let interval = parser.parseExpression('2 * * * * *')
+                        // or maybe keep the expression already parsed
+                        // taskCopy.timer = taskCopy.nextTimer
+                        // taskCopy.nextTimer = interval.next().getTime() - Date.now()
+
                         this.addToQueue( taskCopy )
                     }
                 }
