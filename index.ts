@@ -75,6 +75,15 @@ class Queue {
             
     }
 
+    rescheduleTask ( oldTask: Task, rescheduledTask: Task ) {
+        for ( let i = 0; i < this.queue.length; i++ ) {
+            if ( this.queue[i].name === oldTask.name ) {
+                this.queue[i] = { ...rescheduledTask }
+                break
+            }
+        }
+    }
+
     executeQueue () {
         if ( this.queue[0] ) {
             let currTimer = this.queue[0].timer
@@ -87,18 +96,26 @@ class Queue {
             let taskCopy = { ...this.queue[0] }
             taskCopy.timer = taskCopy.originalTimer
             let timeoutID = setTimeout( () => { 
-                if ( taskCopy.name !== this.queue[0].name) {
+                if ( taskCopy.name !== this.queue[0].name ) {
                     taskCopy = this.queue[0]
                     toBeDone = this.queue[0].task 
                 }
-                toBeDone() 
-                console.log(`seconds past: ${this.secondsPast}`)
+                if ( taskCopy.timer < this.queue[0].timer ) {
+                    // taskCopy.timer -= 
+                    // this.queue.shift()
+                    this.queue.forEach( task => task.timer -= taskCopy.timer )
+                    // this.addToQueue( taskCopy )
+                }
+                else { 
+                    toBeDone() 
+                    console.log(`seconds past: ${this.secondsPast}`)
 
-                this.queue.shift()
-                this.queue.forEach( task => task.timer -= currTimer )
+                    this.queue.shift()
+                    this.queue.forEach( task => task.timer -= currTimer )
 
-                if ( taskCopy.recurrent == true ) {
-                    this.addToQueue( taskCopy )
+                    if ( taskCopy.recurrent == true ) {
+                        this.addToQueue( taskCopy )
+                    }
                 }
                 this.executeQueue()
             }, currTimer )
@@ -117,12 +134,12 @@ let task3 = new Task( '3 sec', () => { console.log('task every 3 seconds') }, 30
 let task4 = new Task( '5 sec', () => { console.log('task every 5 seconds') }, 5000, true )
 
 let queuer = new Queue()
-queuer.addToQueue( task )
+// queuer.addToQueue( task )
 
 // console.log('first step')
 // console.log(queuer.queue)
 
-queuer.addToQueue( task1 )
+// queuer.addToQueue( task1 )
 
 // console.log('2nd step')
 // console.log(queuer.queue)
@@ -132,14 +149,18 @@ queuer.addToQueue( task2 )
 // console.log('3rd step')
 // console.log(queuer.queue)
 
-queuer.addToQueue( task3 )
+// queuer.addToQueue( task3 )
 
 // console.log('4th step')
 // console.log(queuer.queue)
 
-queuer.addToQueue( task4 )
+// queuer.addToQueue( task4 )
 
-setTimeout( () => { queuer.removeFromQueue( task3 ) }, 15500 )
-setTimeout( () => { queuer.removeFromQueue( task ) }, 35500 )
+// setTimeout( () => { queuer.removeFromQueue( task3 ) }, 15500 )
+// setTimeout( () => { queuer.removeFromQueue( task ) }, 35500 )
+
+let toBeRescheduled = { ...task2 }
+toBeRescheduled.timer = 18000
+setTimeout( () => { queuer.rescheduleTask( task2, toBeRescheduled ) }, 7000 )
 
 queuer.executeQueue()
