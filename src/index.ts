@@ -1,13 +1,13 @@
 class Task {
     name: string 
     task: any 
-    originalTimer:number
+    originalTimer: number
     timer: number
     recurrent: boolean
 
     constructor ( name: string, task: any, timer: number, recurrent: boolean = false ) {
         this.recurrent = recurrent
-        this. originalTimer = timer
+        this.originalTimer = timer
         this.timer = timer
         this.name = name
         this.task = task
@@ -50,15 +50,7 @@ class Queue {
     }
 
     removeFromQueue ( deleteTask: Task, iteratedTwice: boolean = false ) {
-        // console.log(this.queue)
         this.queue = this.queue.filter( someTask => someTask.name !== deleteTask.name )
-        // console.log(this.queue)
-        // console.log('--------------------------')
-
-        // Probably an optimization
-        // use the fact that if that task is queue[0] then its timeout is already set so only add to queue the deletion instead of filtering
-        // if(deleteTask.name == this.queue[0].name) -> addToQueue( filtering )
-        // else -> filter
 
         if ( !iteratedTwice ) {
             let currTimer = deleteTask.originalTimer
@@ -77,7 +69,9 @@ class Queue {
 
     rescheduleTask ( oldTask: Task, rescheduledTask: Task ) {
         for ( let i = 0; i < this.queue.length; i++ ) {
+
             if ( this.queue[i].name === oldTask.name ) {
+
                 this.queue[i] = { ...rescheduledTask }
                 break
             }
@@ -88,23 +82,23 @@ class Queue {
         if ( this.queue[0] ) {
             let currTimer = this.queue[0].timer
             this.secondsPast += currTimer
-            // console.log('---------------')
-            // console.log(currTimer)
 
             let toBeDone = this.queue[0].task
 
             let taskCopy = { ...this.queue[0] }
             taskCopy.timer = taskCopy.originalTimer
+
             let timeoutID = setTimeout( () => { 
                 if ( taskCopy.name !== this.queue[0].name ) {
+
                     taskCopy = this.queue[0]
                     toBeDone = this.queue[0].task 
+                
                 }
                 if ( taskCopy.timer < this.queue[0].timer ) {
-                    // taskCopy.timer -= 
-                    // this.queue.shift()
+                    
                     this.queue.forEach( task => task.timer -= taskCopy.timer )
-                    // this.addToQueue( taskCopy )
+
                 }
                 else { 
                     toBeDone() 
@@ -144,23 +138,23 @@ let queuer = new Queue()
 // console.log('2nd step')
 // console.log(queuer.queue)
 
-queuer.addToQueue( task2 )
+// queuer.addToQueue( task2 )
 
 // console.log('3rd step')
 // console.log(queuer.queue)
 
-// queuer.addToQueue( task3 )
+queuer.addToQueue( task3 )
 
 // console.log('4th step')
 // console.log(queuer.queue)
 
-// queuer.addToQueue( task4 )
+queuer.addToQueue( task4 )
 
-// setTimeout( () => { queuer.removeFromQueue( task3 ) }, 15500 )
+setTimeout( () => { queuer.removeFromQueue( task3 ) }, 14900 )
 // setTimeout( () => { queuer.removeFromQueue( task ) }, 35500 )
 
-let toBeRescheduled = { ...task2 }
-toBeRescheduled.timer = 18000
-setTimeout( () => { queuer.rescheduleTask( task2, toBeRescheduled ) }, 7000 )
+// let toBeRescheduled = { ...task2 }
+// toBeRescheduled.timer = 18000
+// setTimeout( () => { queuer.rescheduleTask( task2, toBeRescheduled ) }, 7000 )
 
 queuer.executeQueue()
